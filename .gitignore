@@ -22,3 +22,7 @@ reports/metrics/*
 .vscode/
 .idea/
 mlruns/
+
+# Allow the trained model + processed data used by the dashboard
+!models/best_model.joblib
+!data/processed/insurance_clean.csv
