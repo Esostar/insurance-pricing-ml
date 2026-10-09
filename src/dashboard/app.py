@@ -36,9 +36,9 @@ with tab1:
 
         m1, m2 = st.columns(2)
         m1.metric("Predicted annual cost", f"${p:,.0f}")
-        m2.metric("Baseline (log-space)", f"{exp['base_value_log']:.3f}")
+        m2.metric("Baseline", f"${exp['base_value']:,.0f}")
 
-        df = pd.DataFrame(exp["top_contributions_log_space"])
+        df = pd.DataFrame(exp["top_contributions"])
         df["direction"] = df["shap_value"].apply(
             lambda v: "increases cost" if v > 0 else "decreases cost"
         )
@@ -46,7 +46,7 @@ with tab1:
             df, x="shap_value", y="feature", orientation="h",
             color="direction",
             color_discrete_map={"increases cost": "#d62728", "decreases cost": "#2ca02c"},
-            title="Top drivers (SHAP, log-cost scale)",
+            title="Top drivers (SHAP, USD)",
         )
         fig.update_layout(yaxis=dict(autorange="reversed"))
         st.plotly_chart(fig, use_container_width=True)
