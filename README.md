@@ -1,5 +1,13 @@
 # Insurance Pricing & Risk Intelligence
 
+[![CI](https://github.com/Esostar/insurance-pricing-ml/actions/workflows/ci.yml/badge.svg)](https://github.com/Esostar/insurance-pricing-ml/actions/workflows/ci.yml)
+
+**Live demo:** https://insurance-pricing-ml-yalsdsh5lf5dexjrovzuc2.streamlit.app
+**Repos:** [Esostar](https://github.com/Esostar/insurance-pricing-ml) | [igbinijesumichael9](https://github.com/igbinijesumichael9/insurance-pricing-ml)
+
+---
+
+
 Production-style ML system that estimates annual claim cost for a customer
 and explains the drivers behind each quote.
 
