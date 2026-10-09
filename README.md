@@ -56,3 +56,23 @@ Python 3.9, scikit-learn, XGBoost, SHAP, FastAPI, Streamlit, Docker, Pytest
 
 ## Tests
     pytest -q
+
+
+## Endpoints
+- POST /predict            -> point estimate + SHAP (USD)
+- POST /predict_interval   -> 90% calibrated interval (split-conformal)
+- GET  /health
+
+## Metrics (test set, raw-target RF)
+- R2  ~ 0.90
+- MAE ~ $2,435
+- RMSE ~ $4,280
+- Bias ~ +$77
+- Interval coverage ~ 90% (target 90%)
+
+## Fairness audit
+See `reports/metrics/fairness.json`. Largest group disparity is by
+BMI category (~$1,567); other groups under $600.
+
+## CI
+GitHub Actions runs pytest on every push (fetch data, build model, run tests).
