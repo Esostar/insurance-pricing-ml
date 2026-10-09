@@ -1,5 +1,5 @@
 import math
-from src.pipelines.predict import predict, explain, prepare_input
+from src.pipelines.predict import predict, explain, prepare_input, predict_interval
 
 SAMPLE = {
     "age": 35, "sex": "male", "bmi": 32.5, "children": 2,
@@ -27,5 +27,10 @@ def test_smoker_pays_more_than_nonsmoker():
 
 def test_explain_returns_top_features():
     exp = explain(SAMPLE, top_k=3)
-    assert len(exp["top_contributions_log_space"]) == 3
+    assert len(exp["top_contributions"]) == 3
     assert exp["prediction"] > 0
+
+
+def test_interval_brackets_point():
+    iv = predict_interval(SAMPLE)
+    assert iv["lo"] < iv["point"] < iv["hi"]

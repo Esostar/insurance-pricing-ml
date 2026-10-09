@@ -13,8 +13,17 @@ class CustomerIn(BaseModel):
 
 class PredictionOut(BaseModel):
     prediction: float
-    base_value_log: float
-    top_contributions_log_space: list[dict]
+    base_value: float
+    target_space: str
+    top_contributions: list[dict]
+
+
+class IntervalOut(BaseModel):
+    point: float
+    lo: float
+    hi: float
+    level: float
+    target_space: str
 
 
 class HealthOut(BaseModel):

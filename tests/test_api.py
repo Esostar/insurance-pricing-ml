@@ -17,10 +17,18 @@ def test_health():
 
 def test_predict_endpoint():
     r = client.post("/predict", json=PAYLOAD)
-    assert r.status_code == 200
+    assert r.status_code == 200, r.text
     body = r.json()
     assert body["prediction"] > 0
-    assert len(body["top_contributions_log_space"]) > 0
+    assert len(body["top_contributions"]) > 0
+    assert body["target_space"] == "raw_target"
+
+
+def test_predict_interval_endpoint():
+    r = client.post("/predict_interval", json=PAYLOAD)
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["lo"] < body["point"] < body["hi"]
 
 
 def test_predict_rejects_bad_payload():
