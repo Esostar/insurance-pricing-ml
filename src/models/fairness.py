@@ -1,4 +1,4 @@
-"""Fairness audit: distribution of residuals across demographic groups."""
+"""Fairness audit: residuals across demographic groups (raw-target model)."""
 import json
 from pathlib import Path
 import numpy as np
@@ -13,42 +13,36 @@ RANDOM_STATE = 42
 
 CAT_FEATS = ["sex", "region", "bmi_category", "age_bin"]
 NUM_FEATS = ["age", "bmi", "children", "is_smoker", "smoker_bmi", "smoker_age"]
-TARGET = "log_charges"
 GROUPS = ["sex", "region", "smoker", "bmi_category", "age_bin"]
-
-
-def _smear(pipe, X_tr, y_tr):
-    resid_log = y_tr.values - pipe.predict(X_tr)
-    return float(np.mean(np.exp(resid_log)))
 
 
 def audit():
     df = pd.read_csv(PROCESSED)
     X = df[CAT_FEATS + NUM_FEATS]
-    y = df[TARGET]
+    y_usd = df["charges"]
 
-    X_tr, X_te, y_tr, y_te = train_test_split(
-        X, y, test_size=0.2, random_state=RANDOM_STATE
+    _, X_te, _, y_te = train_test_split(
+        X, y_usd, test_size=0.2, random_state=RANDOM_STATE
     )
     bundle = joblib.load(MODEL_PATH)
     pipe = bundle["pipeline"]
-    smear = _smear(pipe, X_tr, y_tr)
+    target_space = bundle.get("target", "raw_target")
 
-    pred_usd = np.expm1(pipe.predict(X_te)) * smear
-    true_usd = np.expm1(y_te.values)
-    resid = pred_usd - true_usd
+    pred = pipe.predict(X_te)
+    if target_space == "log_target":
+        pred = np.expm1(pred)
 
+    resid = pred - y_te.values
     df_te = df.loc[X_te.index, GROUPS].reset_index(drop=True)
 
     report = {
-        "smearing_factor": smear,
+        "target_space": target_space,
         "overall": {
             "mae": float(np.mean(np.abs(resid))),
             "mean_residual": float(np.mean(resid)),
             "n": int(len(resid)),
         },
     }
-
     for g in GROUPS:
         rows = {}
         for level, idx in df_te.groupby(g).groups.items():
@@ -61,7 +55,6 @@ def audit():
         means = [abs(v["mean_residual"]) for v in rows.values()]
         report[g] = {
             "groups": rows,
-            "max_abs_mean_residual": float(max(means)),
             "disparity_usd": float(max(means) - min(means)),
         }
     return report
@@ -69,8 +62,8 @@ def audit():
 
 if __name__ == "__main__":
     rep = audit()
-    print(f"Smearing factor: {rep['smearing_factor']:.4f}")
-    print(f"Overall bias: {rep['overall']['mean_residual']:.2f} | "
+    print(f"Target space: {rep['target_space']}")
+    print(f"Overall bias: {rep['overall']['mean_residual']:+.2f} | "
           f"MAE: {rep['overall']['mae']:.2f}")
     for g in GROUPS:
         print(f"{g:14s} disparity = ${rep[g]['disparity_usd']:.0f}")
