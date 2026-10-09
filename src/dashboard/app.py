@@ -1,4 +1,7 @@
 """Streamlit dashboard: interactive pricing + driver explanation."""
+import sys, os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -11,7 +14,6 @@ st.title("Insurance Pricing & Risk Intelligence")
 st.caption("Estimate annual claim cost and inspect the drivers behind each quote.")
 
 tab1, tab2 = st.tabs(["Quote", "Dataset Insights"])
-
 
 with tab1:
     c1, c2, c3 = st.columns(3)
@@ -53,7 +55,7 @@ with tab1:
 with tab2:
     proc = Path("data/processed/insurance_clean.csv")
     if not proc.exists():
-        st.warning("Run `python -m src.features.build` first to generate processed data.")
+        st.warning("Run `python -m src.features.build` first.")
     else:
         df = pd.read_csv(proc)
         c1, c2 = st.columns(2)
